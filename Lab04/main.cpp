@@ -47,6 +47,11 @@ public:
 // Viewport 1 Variables
 ProjectionMatrices scene;
 
+GLuint cube_vao = 0, cube_vp_vbo = 0, cube_vn_vbo = 0;
+GLuint bomb_vao = 0, bomb_vp_vbo = 0, bomb_vn_vbo = 0;
+GLuint pumpkin_vao = 0, pumpkin_vp_vbo = 0, pumpkin_vn_vbo = 0;
+GLuint bomberman_vao = 0, bomberman_vp_vbo = 0, bomberman_vn_vbo = 0;
+
 /*----------------------------------------------------------------------------
 MESH TO LOAD
 ----------------------------------------------------------------------------*/
@@ -76,7 +81,6 @@ unsigned int mesh_vao = 0;
 int width = 800;
 int height = 600;
 
-GLuint loc1, loc2, loc3;
 GLfloat rotate_y = 0.0f;
 
 vec4 LightPosition = vec4(8.0, 10.0, 6.0, 1.0);
@@ -249,14 +253,14 @@ GLuint CompileShaders()
 
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
-void generateObjectBufferMesh(ModelData mesh_data) {
+void generateObjectBufferMesh(ModelData mesh_data, GLuint vao, GLuint vp_vbo, GLuint vn_vbo) {
 	/*----------------------------------------------------------------------------
 	LOAD MESH HERE AND COPY INTO BUFFERS
 	----------------------------------------------------------------------------*/
-
+	GLuint loc1, loc2, loc3;
 	//Note: you may get an error "vector subscript out of range" if you are using this code for a mesh that doesnt have positions and normals
 	//Might be an idea to do a check for that before generating and binding the buffer.
-	unsigned int vp_vbo = 0;
+	//unsigned int vp_vbo = 0;
 	loc1 = glGetAttribLocation(shaderProgramID, "vertex_position");
 	loc2 = glGetAttribLocation(shaderProgramID, "vertex_normal");
 	loc3 = glGetAttribLocation(shaderProgramID, "vertex_texture");
@@ -264,7 +268,7 @@ void generateObjectBufferMesh(ModelData mesh_data) {
 	glGenBuffers(1, &vp_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vp_vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mVertices[0], GL_STATIC_DRAW);
-	unsigned int vn_vbo = 0;
+	//unsigned int vn_vbo = 0;
 	glGenBuffers(1, &vn_vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vn_vbo);
 	glBufferData(GL_ARRAY_BUFFER, mesh_data.mPointCount * sizeof(vec3), &mesh_data.mNormals[0], GL_STATIC_DRAW);
@@ -275,7 +279,7 @@ void generateObjectBufferMesh(ModelData mesh_data) {
 	//	glBindBuffer (GL_ARRAY_BUFFER, vt_vbo);
 	//	glBufferData (GL_ARRAY_BUFFER, monkey_head_data.mTextureCoords * sizeof (vec2), &monkey_head_data.mTextureCoords[0], GL_STATIC_DRAW);
 
-	unsigned int vao = 0;
+	//unsigned int vao = 0;
 	glBindVertexArray(vao);
 
 	glEnableVertexAttribArray(loc1);
@@ -296,7 +300,7 @@ void generateObjectBufferMesh(ModelData mesh_data) {
 void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), float rotate_x = 0., float rotate_y = 0., float rotate_z = 0.) {
 	// Main Viewport
 	glViewport(0, 0, width, height);
-	
+
 	mat4 temp = identity_mat4() * scene.model;
 	temp = translate(temp, trans);
 	temp = scale(temp, vec3(.1f, .1f, .1f) * scale_num);
@@ -339,7 +343,7 @@ void display() {
 	int Ld_ = glGetUniformLocation(shaderProgramID, "Ld");
 	glUniform3f(Ld_, tempLd, tempLd, tempLd);
 
-	generateObjectBufferMesh(cube);
+	glBindVertexArray(cube_vao);
 	for (int i = -6; i <= 6; i++) {
 		for (int j = -6; j <= 6; j++) {
 			draw_cube(cube, 5, vec3(i * 4, 0, j * 4));
@@ -352,21 +356,14 @@ void display() {
 		}
 	}
 
-	generateObjectBufferMesh(bomb);
+	glBindVertexArray(bomb_vao);
 	draw_cube(bomb, 20, vec3(1, -2.5, 3));
 
-	generateObjectBufferMesh(bomberman);
+	glBindVertexArray(bomberman_vao);
 	draw_cube(bomberman, 6, vec3(-3, 3, 12));
 
-	generateObjectBufferMesh(pumpkin);
+	glBindVertexArray(pumpkin_vao);
 	draw_cube(pumpkin, 25, vec3(2.5, -3, 2.5));
-
-	//// update uniforms & draw
-	//glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, persp_proj.m);
-	//glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, view.m);
-	//glUniformMatrix4fv(matrix_location, 1, GL_FALSE, scene.m);
-	//glUniformMatrix4fv(ortho_mat_location, 1, GL_FALSE, ortho.m);
-	//glDrawArrays(GL_TRIANGLES, 0, cube.mPointCount);
 
 	glutSwapBuffers();
 }
@@ -401,14 +398,35 @@ void init()
 {
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
-	// load mesh into a vertex buffer array
-	//bomb = load_mesh("bomb.dae");
 	cube = load_mesh("Cargo.dae"); // box
 	bomb = load_mesh("bomb.dae"); // box
 	pumpkin = load_mesh("pumpkin.dae"); // box
 	bomberman = load_mesh("bomberman.dae"); // box
-	//grass = load_mesh("grass.obj");
 
+
+	glGenVertexArrays(1, &cube_vao);
+	glBindVertexArray(cube_vao);
+	glGenBuffers(1, &cube_vp_vbo);
+	glGenBuffers(1, &cube_vn_vbo);
+	generateObjectBufferMesh(cube, cube_vao, cube_vp_vbo, cube_vn_vbo);
+
+	glGenVertexArrays(1, &bomb_vao);
+	glBindVertexArray(bomb_vao);
+	glGenBuffers(1, &bomb_vp_vbo);
+	glGenBuffers(1, &bomb_vn_vbo);
+	generateObjectBufferMesh(bomb, bomb_vao, bomb_vp_vbo, bomb_vn_vbo);
+
+	glGenVertexArrays(1, &pumpkin_vao);
+	glBindVertexArray(pumpkin_vao);
+	glGenBuffers(1, &pumpkin_vp_vbo);
+	glGenBuffers(1, &pumpkin_vn_vbo);
+	generateObjectBufferMesh(pumpkin, pumpkin_vao, pumpkin_vp_vbo, pumpkin_vn_vbo);
+
+	glGenVertexArrays(1, &bomberman_vao);
+	glBindVertexArray(bomberman_vao);
+	glGenBuffers(1, &bomberman_vp_vbo);
+	glGenBuffers(1, &bomberman_vn_vbo);
+	generateObjectBufferMesh(bomberman, bomberman_vao, bomberman_vp_vbo, bomberman_vn_vbo);
 }
 
 
