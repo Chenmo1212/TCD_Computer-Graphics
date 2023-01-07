@@ -11,6 +11,7 @@ out vec3 LightIntensity;
 
 vec3 Kd = vec3 (0.0, 0.6, 0.0); // green diffuse surface reflectance
 
+uniform vec3 color;
 uniform vec4 LightPosition;
 uniform vec3 Ld;
 
@@ -32,8 +33,9 @@ void main(){
   vec3 s = normalize(vec3(LightPosition - eyeCoords));
   
   // The diffuse shading equation, dot product gives us the cosine of angle between the vectors
-  LightIntensity = Ld * Kd * max( dot( s, tnorm ), 0.0 );
-  
+  // LightIntensity = Ld * color * Kd * max( dot( s, tnorm ), 0.0 );
+  LightIntensity = Ld * color * max( dot( s, tnorm ), 0.0 );
+
   // Convert position to clip coordinates and pass along
   gl_Position =  proj * view * model * ortho * vec4 (vertex_position, 1.0);
 }

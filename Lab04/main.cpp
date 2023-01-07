@@ -340,6 +340,9 @@ void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), 
 	glDrawArrays(GL_TRIANGLES, 0, mesh.mPointCount);
 }
 
+vec3 rand_pos() {
+	return vec3(rand() % 60 - 30, 0, rand() % 60 - 30);
+}
 
 void display() {
 
@@ -368,10 +371,14 @@ void display() {
 	int Ld_ = glGetUniformLocation(shaderProgramID, "Ld");
 	glUniform3f(Ld_, tempLd, tempLd, tempLd);
 
+	int model_color = glGetUniformLocation(shaderProgramID, "color");
 	glBindVertexArray(cube_vao);
 	for (int i = -6; i <= 6; i++) {
 		for (int j = -6; j <= 6; j++) {
+			glUniform3f(model_color, 221 / 255.0, 229 / 255.0, 232 / 255.0);
 			draw_cube(cube, 5, vec3(i * 2, 0, j * 2));
+
+			glUniform3f(model_color, 139.0 / 255.0, 166 / 255.0, 76 / 255.0);
 			if (i == -6 || i == 6 || j == -6 || j == 6) {
 				draw_cube(cube, 5, vec3(i * 2, 1.5, j * 2));
 			} else if (i % 2 == 0 && j % 2 ==0) {
@@ -383,6 +390,7 @@ void display() {
 	if (isShowBomb) {
 		DWORD curr_time = timeGetTime();
 		glBindVertexArray(bomb_vao);
+		glUniform3f(model_color, 143.0/255.0f, 95.0/255.0f, 170.0/255.0f);
 		draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ));
 		if (curr_time - lastSpacePressTime >= 3000) {
 			draw_cube(bomb, 20, vec3(BombPosX + 1, 4, BombPosZ));
@@ -393,10 +401,16 @@ void display() {
 	}
 
 	glBindVertexArray(bomberman_vao);
+	glUniform3f(model_color, 1, 1, 1);
 	draw_cube(bomberman, 6, vec3(BombermanPosX, 3, BombermanPosZ));
 
-	//glBindVertexArray(pumpkin_vao);
-	//draw_cube(pumpkin, 25, vec3(2.5, 0.9, 2.5));
+	glBindVertexArray(pumpkin_vao);
+	glUniform3f(model_color, 215.0 /255.0f, 85.0 /255.0, 40.0 /255.0f);
+	draw_cube(pumpkin, 25, vec3(-10, 4, -10));
+	draw_cube(pumpkin, 25, vec3(-8, 4, -10));
+	draw_cube(pumpkin, 25, vec3(-6, 4, -10));
+	draw_cube(pumpkin, 25, vec3(-4, 4, -10));
+	draw_cube(pumpkin, 25, vec3(-2, 4, -10));
 
 	glutSwapBuffers();
 }
@@ -585,6 +599,7 @@ void reshape(int width, int height) {
 }
 
 int main(int argc, char** argv) {
+	srand(time(NULL)); // Initialize the random number generator
 
 	instructions();
 	// Creating model initial values
