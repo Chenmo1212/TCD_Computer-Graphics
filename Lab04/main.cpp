@@ -37,6 +37,9 @@ float x_pos = 0.0f;
 float y_pos = 5.0f;
 float z_pos = 0.0f;
 
+GLfloat rotate_y = 90.0f;
+bool isRotate = false;
+
 int model_location, view_mat_location, proj_mat_location, ortho_mat_location;
 
 class ProjectionMatrices {
@@ -81,9 +84,6 @@ GLuint shaderProgramID;
 ModelData grass, cube, bomb, bomberman, pumpkin;
 
 unsigned int mesh_vao = 0;
-
-GLfloat rotate_y = 0.0f;
-bool isRotate = false;
 
 vec4 LightPosition = vec4(8.0, 10.0, 6.0, 1.0);
 float Light_angle = 0.0;
@@ -382,12 +382,12 @@ void updateScene() {
 
 	if (isRotate) {
 		// Rotate the model slowly around the y axis at 20 degrees per second
-		rotate_y += 0.2f * delta;
+		rotate_y += 20.0f * delta;
 		rotate_y = fmodf(rotate_y, 360.0f);
-		//std::cout << rotate_y << "x:" << 14 * cos(rotate_y) << " z:" << 14 * sin(rotate_y) << std::endl;
+		std::cout << rotate_y << " x:" << 14 * cos(glm::radians(rotate_y)) << " z:" << 14 * sin(glm::radians(rotate_y)) << std::endl;
 	}
 	int camera_len = sqrt(camera_x * camera_x + camera_z * camera_z);
-	scene.view = look_at(vec3(camera_len * cos(rotate_y), camera_y, camera_len * sin(rotate_y)), vec3(0.0f, 0.0f, 0.0f), vec3(0, 1, 0));
+	scene.view = look_at(vec3(camera_len * cos(glm::radians(rotate_y)), camera_y, camera_len * sin(glm::radians(rotate_y))), vec3(0.0f, 0.0f, 0.0f), vec3(0, 1, 0));
 	scene.model = identity_mat4();
 	//scene.model = rotate_y_deg(scene.model, rotate_y);
 	//scene.model = rotate_y_deg(scene.model, rotate_y);
@@ -454,6 +454,9 @@ void keyPress(unsigned char key, int xmouse, int ymouse) {
 			break;
 		case('r'):
 			isRotate = !isRotate;
+			break;
+		case('t'):
+			rotate_y = 90.0f;
 			break;
 		case('q'):
 			exit(0);
