@@ -42,6 +42,7 @@ float BombPosX = 0.0f, BombPosZ = 0.0f; // Position Bomb
 bool isShowBomb = false;
 DWORD lastSpacePressTime = 0;
 
+std::vector<vec3> pumpkin_pos;
 
 GLfloat rotate_y = 90.0f;
 bool isRotate = false;
@@ -340,8 +341,12 @@ void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), 
 	glDrawArrays(GL_TRIANGLES, 0, mesh.mPointCount);
 }
 
-vec3 rand_pos() {
-	return vec3(rand() % 60 - 30, 0, rand() % 60 - 30);
+std::vector<vec3> rand_pumpkin_pos() {
+	std::vector<vec3> positions;
+	for (int i = 0; i < 5; i++) {
+		positions.push_back(vec3((rand() % 20 - 10) / 2 * 2 + 1, 2, (rand() % 20 - 10) / 2 * 2 + 1));
+	}
+	return positions;
 }
 
 void display() {
@@ -411,11 +416,9 @@ void display() {
 
 	glBindVertexArray(pumpkin_vao);
 	glUniform3f(model_color, 215.0 /255.0f, 85.0 /255.0, 40.0 /255.0f);
-	draw_cube(pumpkin, 25, vec3(-9, 2, 2));
-	draw_cube(pumpkin, 25, vec3(-2, 2, 7));
-	draw_cube(pumpkin, 25, vec3(6, 2, 9));
-	draw_cube(pumpkin, 25, vec3(-5, 2, -5));
-	draw_cube(pumpkin, 25, vec3(7, 2, -4));
+	for (int i = 0; i < 5; i++) {
+		draw_cube(pumpkin, 25, pumpkin_pos[i]);
+	}
 
 	glutSwapBuffers();
 }
@@ -455,6 +458,8 @@ void updateScene() {
 
 void init()
 {
+	srand((unsigned)time(0));
+
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
 	cube = load_mesh("Cargo.dae"); // box
@@ -486,6 +491,8 @@ void init()
 	glGenBuffers(1, &bomberman_vp_vbo);
 	glGenBuffers(1, &bomberman_vn_vbo);
 	generateObjectBufferMesh(bomberman, bomberman_vao, bomberman_vp_vbo, bomberman_vn_vbo);
+
+	pumpkin_pos = rand_pumpkin_pos();
 }
 
 
