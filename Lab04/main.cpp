@@ -37,7 +37,7 @@ float x_pos = 0.0f;
 float y_pos = 5.0f;
 float z_pos = 0.0f;
 
-float BombermanPosX = -3, BombermanPosZ = 12; // Position initial of Bomberman
+float BombermanPosX = 1, BombermanPosZ = 2; // Position initial of Bomberman
 float BombPosX = 0.0f, BombPosZ = 0.0f; // Position Bomb
 bool isShowBomb = false;
 DWORD lastSpacePressTime = 0;
@@ -391,26 +391,31 @@ void display() {
 		DWORD curr_time = timeGetTime();
 		glBindVertexArray(bomb_vao);
 		glUniform3f(model_color, 143.0/255.0f, 95.0/255.0f, 170.0/255.0f);
-		draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ));
+		draw_cube(bomb, 20, vec3(BombPosX, 2, BombPosZ));
 		if (curr_time - lastSpacePressTime >= 3000) {
-			draw_cube(bomb, 20, vec3(BombPosX + 1, 4, BombPosZ));
-			draw_cube(bomb, 20, vec3(BombPosX - 1, 4, BombPosZ));
-			draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ + 1));
-			draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ - 1));
+			glUniform3f(model_color, 1, 1, 97.0/255.0f);
+			draw_cube(bomb, 20, vec3(BombPosX + 1, 2, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX + 2, 2, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX - 1, 2, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX - 2, 2, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX, 2, BombPosZ + 1));
+			draw_cube(bomb, 20, vec3(BombPosX, 2, BombPosZ + 2));
+			draw_cube(bomb, 20, vec3(BombPosX, 2, BombPosZ - 1));
+			draw_cube(bomb, 20, vec3(BombPosX, 2, BombPosZ - 2));
 		}
 	}
 
 	glBindVertexArray(bomberman_vao);
 	glUniform3f(model_color, 1, 1, 1);
-	draw_cube(bomberman, 6, vec3(BombermanPosX, 3, BombermanPosZ));
+	draw_cube(bomberman, 6, vec3(BombermanPosX, 2, BombermanPosZ));
 
 	glBindVertexArray(pumpkin_vao);
 	glUniform3f(model_color, 215.0 /255.0f, 85.0 /255.0, 40.0 /255.0f);
-	draw_cube(pumpkin, 25, vec3(-10, 4, -10));
-	draw_cube(pumpkin, 25, vec3(-8, 4, -10));
-	draw_cube(pumpkin, 25, vec3(-6, 4, -10));
-	draw_cube(pumpkin, 25, vec3(-4, 4, -10));
-	draw_cube(pumpkin, 25, vec3(-2, 4, -10));
+	draw_cube(pumpkin, 25, vec3(-9, 2, 2));
+	draw_cube(pumpkin, 25, vec3(-2, 2, 7));
+	draw_cube(pumpkin, 25, vec3(6, 2, 9));
+	draw_cube(pumpkin, 25, vec3(-5, 2, -5));
+	draw_cube(pumpkin, 25, vec3(7, 2, -4));
 
 	glutSwapBuffers();
 }
