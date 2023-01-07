@@ -25,11 +25,14 @@
 
 # define PI 3.1415926
 
+GLint WIDTH = 800; // window width 
+GLint HEIGHT = 800; // window height
+
 
 // Variables referenced in header files
 float camera_x = 0.0f;
-float camera_y = 15.0f;
-float camera_z = 20.0f;
+float camera_y = 20.0f;
+float camera_z = 14.0f;
 float x_pos = 0.0f;
 float y_pos = 5.0f;
 float z_pos = 0.0f;
@@ -78,10 +81,9 @@ GLuint shaderProgramID;
 ModelData grass, cube, bomb, bomberman, pumpkin;
 
 unsigned int mesh_vao = 0;
-int width = 800;
-int height = 600;
 
 GLfloat rotate_y = 0.0f;
+bool isRotate = false;
 
 vec4 LightPosition = vec4(8.0, 10.0, 6.0, 1.0);
 float Light_angle = 0.0;
@@ -299,7 +301,7 @@ void generateObjectBufferMesh(ModelData mesh_data, GLuint vao, GLuint vp_vbo, GL
 
 void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), float rotate_x = 0., float rotate_y = 0., float rotate_z = 0.) {
 	// Main Viewport
-	glViewport(0, 0, width, height);
+	glViewport(0, 0, WIDTH, HEIGHT);
 
 	mat4 temp = identity_mat4() * scene.model;
 	temp = translate(temp, trans);
@@ -323,8 +325,8 @@ void display() {
 	glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(shaderProgramID);
 
+	glUseProgram(shaderProgramID);
 	// Declare your uniform variables that will be used in your shader
 	model_location = glGetUniformLocation(shaderProgramID, "model");
 	view_mat_location = glGetUniformLocation(shaderProgramID, "view");
@@ -357,13 +359,13 @@ void display() {
 	}
 
 	glBindVertexArray(bomb_vao);
-	draw_cube(bomb, 20, vec3(1, -2.5, 3));
+	draw_cube(bomb, 20, vec3(1, 1.1, 3));
 
 	glBindVertexArray(bomberman_vao);
-	draw_cube(bomberman, 6, vec3(-3, 3, 12));
+	draw_cube(bomberman, 6, vec3(-3 + x_pos, 3, 12 + z_pos));
 
 	glBindVertexArray(pumpkin_vao);
-	draw_cube(pumpkin, 25, vec3(2.5, -3, 2.5));
+	draw_cube(pumpkin, 25, vec3(2.5, 0.9, 2.5));
 
 	glutSwapBuffers();
 }
@@ -378,16 +380,18 @@ void updateScene() {
 	float delta = (curr_time - last_time) * 0.001f;
 	last_time = curr_time;
 
-	// Rotate the model slowly around the y axis at 20 degrees per second
-	//rotate_y += 20.0f * delta;
-	//rotate_y = fmodf(rotate_y, 360.0f);
-
-	// Model View
-	//modelRotation += 0.02f;
-	//std::cout << modelRotation << std::endl;
-	scene.view = look_at(vec3(camera_x, camera_y, camera_z), vec3(0.0f, 0.0f, 0.0f), vec3(0, 1, 0));
+	if (isRotate) {
+		// Rotate the model slowly around the y axis at 20 degrees per second
+		rotate_y += 0.2f * delta;
+		rotate_y = fmodf(rotate_y, 360.0f);
+		//std::cout << rotate_y << "x:" << 14 * cos(rotate_y) << " z:" << 14 * sin(rotate_y) << std::endl;
+	}
+	int camera_len = sqrt(camera_x * camera_x + camera_z * camera_z);
+	scene.view = look_at(vec3(camera_len * cos(rotate_y), camera_y, camera_len * sin(rotate_y)), vec3(0.0f, 0.0f, 0.0f), vec3(0, 1, 0));
 	scene.model = identity_mat4();
-	scene.model = translate(scene.model, vec3(x_pos, y_pos, z_pos));
+	//scene.model = rotate_y_deg(scene.model, rotate_y);
+	//scene.model = rotate_y_deg(scene.model, rotate_y);
+	//scene.model = translate(scene.model, vec3(x_pos, y_pos, z_pos));
 
 	// Draw the next frame
 	glutPostRedisplay();
@@ -432,20 +436,24 @@ void init()
 
 
 void keyPress(unsigned char key, int xmouse, int ymouse) {
-	std::cout << "Keypress: " << key << ':' << camera_y << std::endl;
+	//std::cout << "Keypress: " << key << " X:" << x_pos << " Z:" << z_pos << std::endl;
+	std::cout << "Keypress: " << key << " X:" << camera_x << " Y:" << camera_y << " Z:" << camera_z << std::endl;
 	switch (key) {
 		// Main object movement
 		case('w'):
-			z_pos -= 0.5f;
+			z_pos -= 1.0f;
 			break;
 		case('a'):
-			x_pos -= 0.5f;
+			x_pos -= 1.0f;
 			break;
 		case('s'):
-			z_pos += 0.5f;
+			z_pos += 1.0f;
 			break;
 		case('d'):
-			x_pos += 0.5f;
+			x_pos += 1.0f;
+			break;
+		case('r'):
+			isRotate = !isRotate;
 			break;
 		case('q'):
 			exit(0);
@@ -453,8 +461,8 @@ void keyPress(unsigned char key, int xmouse, int ymouse) {
 };
 void mouseMove(int x, int y) {
 	// Fix x_mouse coordinates calculation to only take the first viewport
-	camera_x = (float)-(x - width / 2) / (width / 2);
-	camera_y = (float)-(y - height / 2) / (height / 2);
+	camera_x = (float)-(x - WIDTH / 2) / (WIDTH / 2);
+	camera_y = (float)-(y - HEIGHT / 2) / (HEIGHT / 2);
 };
 
 void mouseWheel(int key, int wheeldir, int x, int y) {
@@ -477,7 +485,11 @@ void specialKeypress(int key, int x, int y) {
 			ld -= 0.1;
 			break;
 		case(GLUT_KEY_LEFT):
-			Light_angle += 10.0;
+			if (isRotate) {
+
+			} else {
+				Light_angle += 10.0;
+			}
 			break;
 		case(GLUT_KEY_RIGHT):
 			Light_angle -= 10.0;
@@ -511,12 +523,22 @@ void instructions()
 		<< "##########################################\n";
 }
 
+void reshape(int width, int height) {
+	WIDTH = width;
+	HEIGHT = height;
+	glViewport(0, 0, (GLint)width, (GLint)height);
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	//gluPerspective(70.0, width / (float)height, 0.1, 30.0);
+	glMatrixMode(GL_MODELVIEW);
+}
+
 int main(int argc, char** argv) {
 
 	instructions();
 	// Creating model initial values
 	// Model 1 View
-	scene.projection = perspective(90.0, (float)(width) / (float)height, 0.1, 100.0);
+	scene.projection = perspective(80, (float)(WIDTH) / (float)HEIGHT, 0.1, 100.0);
 	scene.view = identity_mat4();
 	scene.model = identity_mat4();
 	scene.ortho = identity_mat4();
@@ -524,11 +546,12 @@ int main(int argc, char** argv) {
 	// Set up the window
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
-	glutInitWindowSize(width, height);
+	glutInitWindowSize(WIDTH, HEIGHT);
 	glutCreateWindow("Bomberman");
 
 	// Tell glut where the display function is
 	glutDisplayFunc(display);
+	glutReshapeFunc(reshape);
 	glutIdleFunc(updateScene);
 	glutKeyboardFunc(keyPress);
 	glutSpecialFunc(specialKeypress);
