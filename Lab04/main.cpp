@@ -381,8 +381,15 @@ void display() {
 	}
 
 	if (isShowBomb) {
+		DWORD curr_time = timeGetTime();
 		glBindVertexArray(bomb_vao);
 		draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ));
+		if (curr_time - lastSpacePressTime >= 3000) {
+			draw_cube(bomb, 20, vec3(BombPosX + 1, 4, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX - 1, 4, BombPosZ));
+			draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ + 1));
+			draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ - 1));
+		}
 	}
 
 	glBindVertexArray(bomberman_vao);
@@ -403,6 +410,11 @@ void updateScene() {
 		last_time = curr_time;
 	float delta = (curr_time - last_time) * 0.001f;
 	last_time = curr_time;
+
+	if (curr_time - lastSpacePressTime >= 3500) {
+		isShowBomb = false;
+		lastSpacePressTime = 0;
+	}
 
 	if (isRotate) {
 		// Rotate the model slowly around the y axis at 20 degrees per second
