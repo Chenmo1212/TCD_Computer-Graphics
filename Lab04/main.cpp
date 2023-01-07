@@ -42,7 +42,7 @@ float BombPosX = 0.0f, BombPosZ = 0.0f; // Position Bomb
 bool isShowBomb = false;
 DWORD lastSpacePressTime = 0;
 
-std::vector<vec3> pumpkin_pos;
+std::vector<vec3> enemy_pos;
 
 GLfloat rotate_y = 90.0f;
 bool isRotate = false;
@@ -62,7 +62,7 @@ ProjectionMatrices scene;
 
 GLuint cube_vao = 0, cube_vp_vbo = 0, cube_vn_vbo = 0;
 GLuint bomb_vao = 0, bomb_vp_vbo = 0, bomb_vn_vbo = 0;
-GLuint pumpkin_vao = 0, pumpkin_vp_vbo = 0, pumpkin_vn_vbo = 0;
+GLuint enemy_vao = 0, enemy_vp_vbo = 0, enemy_vn_vbo = 0;
 GLuint bomberman_vao = 0, bomberman_vp_vbo = 0, bomberman_vn_vbo = 0;
 
 /*----------------------------------------------------------------------------
@@ -88,7 +88,7 @@ typedef struct
 using namespace std;
 GLuint shaderProgramID;
 
-ModelData grass, cube, bomb, bomberman, pumpkin;
+ModelData grass, cube, bomb, bomberman, enemy;
 
 unsigned int mesh_vao = 0;
 
@@ -341,10 +341,16 @@ void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), 
 	glDrawArrays(GL_TRIANGLES, 0, mesh.mPointCount);
 }
 
-std::vector<vec3> rand_pumpkin_pos() {
+std::vector<vec3> rand_enemy_pos() {
 	std::vector<vec3> positions;
 	for (int i = 0; i < 5; i++) {
-		positions.push_back(vec3((rand() % 20 - 10) / 2 * 2 + 1, 2, (rand() % 20 - 10) / 2 * 2 + 1));
+		int x, z;
+		do {
+			x = rand() % 21 - 10;
+			z = rand() % 21 - 10;
+		} while (x == 0 || z == 0 || x % 4 == 0 || z % 4 == 0 || x % 2 != 0 || z % 2 != 0);
+		cout << "x:" << x << " " << "z: " << z << endl;
+		positions.push_back(vec3(x, 2, z));
 	}
 	return positions;
 }
@@ -412,12 +418,12 @@ void display() {
 
 	glBindVertexArray(bomberman_vao);
 	glUniform3f(model_color, 1, 1, 1);
-	draw_cube(bomberman, 6, vec3(BombermanPosX, 2, BombermanPosZ));
+	draw_cube(bomberman, 3, vec3(BombermanPosX, 2, BombermanPosZ));
 
-	glBindVertexArray(pumpkin_vao);
+	glBindVertexArray(enemy_vao);
 	glUniform3f(model_color, 215.0 /255.0f, 85.0 /255.0, 40.0 /255.0f);
 	for (int i = 0; i < 5; i++) {
-		draw_cube(pumpkin, 25, pumpkin_pos[i]);
+		draw_cube(enemy, 40, enemy_pos[i]);
 	}
 
 	glutSwapBuffers();
@@ -464,8 +470,8 @@ void init()
 	GLuint shaderProgramID = CompileShaders();
 	cube = load_mesh("Cargo.dae"); // box
 	bomb = load_mesh("bomb.dae"); // box
-	pumpkin = load_mesh("pumpkin.dae"); // box
-	bomberman = load_mesh("bomberman.dae"); // box
+	enemy = load_mesh("cat.dae"); // box
+	bomberman = load_mesh("snowman.dae"); // box
 
 
 	glGenVertexArrays(1, &cube_vao);
@@ -480,11 +486,11 @@ void init()
 	glGenBuffers(1, &bomb_vn_vbo);
 	generateObjectBufferMesh(bomb, bomb_vao, bomb_vp_vbo, bomb_vn_vbo);
 
-	glGenVertexArrays(1, &pumpkin_vao);
-	glBindVertexArray(pumpkin_vao);
-	glGenBuffers(1, &pumpkin_vp_vbo);
-	glGenBuffers(1, &pumpkin_vn_vbo);
-	generateObjectBufferMesh(pumpkin, pumpkin_vao, pumpkin_vp_vbo, pumpkin_vn_vbo);
+	glGenVertexArrays(1, &enemy_vao);
+	glBindVertexArray(enemy_vao);
+	glGenBuffers(1, &enemy_vp_vbo);
+	glGenBuffers(1, &enemy_vn_vbo);
+	generateObjectBufferMesh(enemy, enemy_vao, enemy_vp_vbo, enemy_vn_vbo);
 
 	glGenVertexArrays(1, &bomberman_vao);
 	glBindVertexArray(bomberman_vao);
@@ -492,16 +498,13 @@ void init()
 	glGenBuffers(1, &bomberman_vn_vbo);
 	generateObjectBufferMesh(bomberman, bomberman_vao, bomberman_vp_vbo, bomberman_vn_vbo);
 
-	pumpkin_pos = rand_pumpkin_pos();
+	enemy_pos = rand_enemy_pos();
 }
 
 
 
 void keyPress(unsigned char key, int xmouse, int ymouse) {
 	DWORD currentTime = 0;
-	//std::cout << "Keypress: " << key << " X:" << x_pos << " Z:" << z_pos << std::endl;
-	std::cout << "Keypress: " << key << " X:" << BombermanPosX << " Z:" << BombermanPosZ << std::endl;
-	//std::cout << "Keypress: " << key << " X:" << camera_x << " Y:" << camera_y << " Z:" << camera_z << std::endl;
 	switch (key) {
 		// Main object movement
 		case('w'):
@@ -535,6 +538,10 @@ void keyPress(unsigned char key, int xmouse, int ymouse) {
 		case('q'):
 			exit(0);
 	}
+	//std::cout << "Keypress: " << key << " X:" << x_pos << " Z:" << z_pos << std::endl;
+	std::cout << "Keypress: " << key << " X:" << BombermanPosX << " Z:" << BombermanPosZ << std::endl;
+	//std::cout << "Keypress: " << key << " X:" << camera_x << " Y:" << camera_y << " Z:" << camera_z << std::endl;
+
 };
 void mouseMove(int x, int y) {
 	// Fix x_mouse coordinates calculation to only take the first viewport
