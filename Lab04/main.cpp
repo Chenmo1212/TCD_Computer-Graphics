@@ -37,6 +37,12 @@ float x_pos = 0.0f;
 float y_pos = 5.0f;
 float z_pos = 0.0f;
 
+float BombermanPosX = -3, BombermanPosZ = 12; // Position initial of Bomberman
+float BombPosX = 0.0f, BombPosZ = 0.0f; // Position Bomb
+bool isShowBomb = false;
+DWORD lastSpacePressTime = 0;
+
+
 GLfloat rotate_y = 90.0f;
 bool isRotate = false;
 
@@ -89,6 +95,23 @@ vec4 LightPosition = vec4(8.0, 10.0, 6.0, 1.0);
 float Light_angle = 0.0;
 GLuint Light_rad = 10;
 float ld = 1.0;
+
+
+/*----------------------------------------------------------------------------
+GAME FUNCTION
+----------------------------------------------------------------------------*/
+
+// Collision Detection
+bool collision(float coord1[], float coord2[], float R1, float R2) {
+
+	float D = sqrt(pow(coord1[0] - coord2[0], 2) + pow(coord1[1] - coord2[1], 2) + pow(coord1[2] - coord2[2], 2));
+	if (D <= (R1 + R2)) {
+		return true;
+	}
+	return false;
+}
+
+
 
 #pragma region MESH LOADING
 /*----------------------------------------------------------------------------
@@ -301,14 +324,14 @@ void generateObjectBufferMesh(ModelData mesh_data, GLuint vao, GLuint vp_vbo, GL
 
 void draw_cube(ModelData mesh, float scale_num = 1., vec3 trans=vec3(0.,0.,0.), float rotate_x = 0., float rotate_y = 0., float rotate_z = 0.) {
 	// Main Viewport
-	glViewport(0, 0, WIDTH, HEIGHT);
+	//glViewport(0, 0, WIDTH, HEIGHT);
 
 	mat4 temp = identity_mat4() * scene.model;
-	temp = translate(temp, trans);
-	temp = scale(temp, vec3(.1f, .1f, .1f) * scale_num);
 	temp = rotate_z_deg(temp, rotate_z);
 	temp = rotate_y_deg(temp, rotate_y);
 	temp = rotate_x_deg(temp, rotate_x);
+	temp = scale(temp, vec3(.1f, .1f, .1f) * scale_num);
+	temp = translate(temp, trans);
 
 	glUniformMatrix4fv(proj_mat_location, 1, GL_FALSE, scene.projection.m);
 	glUniformMatrix4fv(view_mat_location, 1, GL_FALSE, scene.view.m);
@@ -348,24 +371,25 @@ void display() {
 	glBindVertexArray(cube_vao);
 	for (int i = -6; i <= 6; i++) {
 		for (int j = -6; j <= 6; j++) {
-			draw_cube(cube, 5, vec3(i * 4, 0, j * 4));
-
+			draw_cube(cube, 5, vec3(i * 2, 0, j * 2));
 			if (i == -6 || i == 6 || j == -6 || j == 6) {
-				draw_cube(cube, 5, vec3(i * 4, 3, j * 4));
+				draw_cube(cube, 5, vec3(i * 2, 1.5, j * 2));
 			} else if (i % 2 == 0 && j % 2 ==0) {
-				draw_cube(cube, 5, vec3(i * 4, 3, j * 4));
+				draw_cube(cube, 5, vec3(i * 2, 1.5, j * 2));
 			}
 		}
 	}
 
-	glBindVertexArray(bomb_vao);
-	draw_cube(bomb, 20, vec3(1, 1.1, 3));
+	if (isShowBomb) {
+		glBindVertexArray(bomb_vao);
+		draw_cube(bomb, 20, vec3(BombPosX, 4, BombPosZ));
+	}
 
 	glBindVertexArray(bomberman_vao);
-	draw_cube(bomberman, 6, vec3(-3 + x_pos, 3, 12 + z_pos));
+	draw_cube(bomberman, 6, vec3(BombermanPosX, 3, BombermanPosZ));
 
-	glBindVertexArray(pumpkin_vao);
-	draw_cube(pumpkin, 25, vec3(2.5, 0.9, 2.5));
+	//glBindVertexArray(pumpkin_vao);
+	//draw_cube(pumpkin, 25, vec3(2.5, 0.9, 2.5));
 
 	glutSwapBuffers();
 }
@@ -436,21 +460,33 @@ void init()
 
 
 void keyPress(unsigned char key, int xmouse, int ymouse) {
+	DWORD currentTime = 0;
 	//std::cout << "Keypress: " << key << " X:" << x_pos << " Z:" << z_pos << std::endl;
-	std::cout << "Keypress: " << key << " X:" << camera_x << " Y:" << camera_y << " Z:" << camera_z << std::endl;
+	std::cout << "Keypress: " << key << " X:" << BombermanPosX << " Z:" << BombermanPosZ << std::endl;
+	//std::cout << "Keypress: " << key << " X:" << camera_x << " Y:" << camera_y << " Z:" << camera_z << std::endl;
 	switch (key) {
 		// Main object movement
 		case('w'):
-			z_pos -= 1.0f;
+			BombermanPosZ -= 1.0f;
 			break;
 		case('a'):
-			x_pos -= 1.0f;
+			BombermanPosX -= 1.0f;
 			break;
 		case('s'):
-			z_pos += 1.0f;
+			BombermanPosZ += 1.0f;
 			break;
 		case('d'):
-			x_pos += 1.0f;
+			BombermanPosX += 1.0f;
+			break;
+		case(' '):
+			currentTime = timeGetTime();
+			if (currentTime - lastSpacePressTime >= 3000) {
+				BombPosX = BombermanPosX;
+				BombPosZ = BombermanPosZ;
+				isShowBomb = true;
+				cout << " space !!!   " << BombPosX << ", " << BombPosZ << endl;
+				lastSpacePressTime = currentTime;
+			}
 			break;
 		case('r'):
 			isRotate = !isRotate;
