@@ -1,0 +1,9 @@
+﻿  main.cpp
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\teapot.h(2980,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\teapot.h(5959,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\teapot.h(8938,1): warning C4305: 'initializing': truncation from 'double' to 'float'
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\main.cpp(130,56): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\main.cpp(134,56): warning C4244: 'argument': conversion from 'float' to 'GLsizeiptr', possible loss of data
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\main.cpp(167,76): warning C4305: 'argument': truncation from 'double' to 'float'
+D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\Lab04\main.cpp(175,33): warning C4244: 'argument': conversion from 'float' to 'GLsizei', possible loss of data
+  Lab04.vcxproj -> D:\Files\005_TCD\05_lectures\02_CG(Computer_Graphics)\00_Lab\00_lab5\Lab 04 - Sample Object Hierarchy\build\executables\Debug\Lab 04.exe

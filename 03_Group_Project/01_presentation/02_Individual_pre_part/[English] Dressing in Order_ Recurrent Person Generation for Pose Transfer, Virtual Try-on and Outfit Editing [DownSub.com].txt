@@ -1,0 +1,82 @@
+welcome to the talk of ICCV paper 
+
+dressing in order recurrent person image generation for pose  transfer virtual try-on and outfit editing
+
+dressing in order is designed for multiple fashion tasks including virtual try-on. 
+
+let's assume we have a source person and two garments to try on
+
+dressing in order can let the user to decide what order they want to put on the shirt or the pants
+
+as a result, we will generate either tucking-in result or not tucking-in result 
+
+besides that we can also keep layering additional garments on the existing outfits  
+
+in this way we can achieve both multiple layering and multiple layouts 
+
+
+besides, we can also do post transfer and outfit editing including content removal, reshaping, print insertion and texture transfer  .
+
+the key for dressing in order to work on multiple tasks is a recurrent pipeline
+
+the generation starts with a target pose and the source person. 
+
+the first thing we do is we will extract the skin region from the source person, and render the source person in the target pose
+
+next, for every garment that we are interested, we will separately encode its shape and texture
+
+and we use a generator called "G_gar" to put it back on the person. the "G_gar" will be recurrently running  
+
+for every new garment, so we can sequentially layer in garments one by one 
+
+technically we can keep running this step as many times as we want because this is a recurrent mechanism  
+
+with such a pipeline we can play with every component to achieve different applications   
+
+for example we can achieve pose transfer by play with this target pose input  
+
+also, we can play with the dressing order.  
+
+Currently the dressing order is to put on the shirt first and then the shorts, and we  achieved a tucking-in result
+
+However if switching the order of the shorts and the shirt, we can get a  not-tucking-in result
+
+ so by playing with the dressing order, we can achieve different layout and many  interesting effects
+
+besides, we can also play with åthe separately encoded shape and texture   
+
+the shape and texture of a garment can actually come from different source images. By doing so we can achieve  
+
+reshaping or we can achieve texture transfer. so the texture input can even come from an external  source images
+
+and we can do content removal by removing the unwanted region from the texture input
+
+ and we can do print insertion by treating the print as the additional input of garment  
+
+and the model will rendåer it in a plausible way 
+ 
+
+for the performance of our work, based on the user study 
+
+for post transfer, our work is equivalent or slightly better than the previous work  
+
+and for virtual trial users are more likely to prefer our work than the previous work  
+
+because we can preserve more details in terms of shape and texture   
+
+more results about the try-on, 
+
+including try-on with different layout,  
+
+layering inside and outside 
+
+and keep layering outside
+
+more results about editing, including texture transfer, reshaping
+
+content removal and content insertion
+
+there are more about our work in our paper  
+
+on our project page and you can also check our code on github, thank you
+
